@@ -1,6 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import type React from "react"
+
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -16,6 +18,11 @@ import {
   Database,
   Shield,
   Rocket,
+  X,
+  FileText,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -123,12 +130,31 @@ const TokenFlow = ({
   )
 }
 
+// File size formatter
+const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return "0 Bytes"
+  const k = 1024
+  const sizes = ["Bytes", "KB", "MB", "GB"]
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+}
+
 export default function Component() {
   const [description, setDescription] = useState("")
   const [currentSlide, setCurrentSlide] = useState(0)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const maxLength = 500
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [isDragOver, setIsDragOver] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: "success" | "error" | null
+    message: string
+    jobId?: string
+  }>({ type: null, message: "" })
   const [isMounted, setIsMounted] = useState(false)
+
+  const maxLength = 500
+  const maxFileSize = 2 * 1024 * 1024 * 1024 // 2GB
 
   useEffect(() => {
     setIsMounted(true)
@@ -151,8 +177,115 @@ export default function Component() {
     return () => window.removeEventListener("mousemove", handleMouseMove)
   }, [])
 
+  // File handling functions
+  const handleFileSelect = useCallback(
+    (file: File) => {
+      if (file.size > maxFileSize) {
+        setSubmitStatus({
+          type: "error",
+          message: "File size must be 2GB or less",
+        })
+        return
+      }
+
+      setSelectedFile(file)
+      setSubmitStatus({ type: null, message: "" })
+    },
+    [maxFileSize],
+  )
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      handleFileSelect(file)
+    }
+  }
+
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault()
+    setIsDragOver(false)
+
+    const file = event.dataTransfer.files[0]
+    if (file) {
+      handleFileSelect(file)
+    }
+  }
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault()
+    setIsDragOver(true)
+  }
+
+  const handleDragLeave = (event: React.DragEvent) => {
+    event.preventDefault()
+    setIsDragOver(false)
+  }
+
+  const removeFile = () => {
+    setSelectedFile(null)
+    setSubmitStatus({ type: null, message: "" })
+  }
+
+  // Form submission
+  const handleSubmit = async () => {
+    if (!description.trim()) {
+      setSubmitStatus({
+        type: "error",
+        message: "Please provide a description for your transformer architecture",
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+    setSubmitStatus({ type: null, message: "" })
+
+    try {
+      const formData = new FormData()
+      formData.append("description", description.trim())
+
+      if (selectedFile) {
+        formData.append("file", selectedFile)
+      }
+
+      const response = await fetch("/api/forge-transformer", {
+        method: "POST",
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        setSubmitStatus({
+          type: "success",
+          message: result.message,
+          jobId: result.jobId,
+        })
+
+        // Reset form after successful submission
+        setTimeout(() => {
+          setDescription("")
+          setSelectedFile(null)
+          setSubmitStatus({ type: null, message: "" })
+        }, 5000)
+      } else {
+        setSubmitStatus({
+          type: "error",
+          message: result.error || "An error occurred while processing your request",
+        })
+      }
+    } catch (error) {
+      console.error("Submission error:", error)
+      setSubmitStatus({
+        type: "error",
+        message: "Network error. Please check your connection and try again.",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   if (!isMounted) {
-    return <div className="min-h-screen bg-black" /> // Loading state
+    return <div className="min-h-screen bg-black" />
   }
 
   return (
@@ -583,15 +716,51 @@ export default function Component() {
           >
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative border-2 border-dashed border-gray-700/60 rounded-2xl p-16 text-center bg-gray-900/40 backdrop-blur-sm hover:border-cyan-400/60 hover:bg-gray-900/60 transition-all duration-500 cursor-pointer">
+              <div
+                className={`relative border-2 border-dashed rounded-2xl p-16 text-center bg-gray-900/40 backdrop-blur-sm transition-all duration-500 cursor-pointer ${
+                  isDragOver
+                    ? "border-cyan-400/80 bg-gray-900/60"
+                    : "border-gray-700/60 hover:border-cyan-400/60 hover:bg-gray-900/60"
+                }`}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onClick={() => document.getElementById("file-input")?.click()}
+              >
+                <input id="file-input" type="file" onChange={handleFileChange} className="hidden" accept="*/*" />
+
                 <motion.div whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
-                  <div className="relative inline-block mb-6">
-                    <Upload className="w-16 h-16 text-gray-400 group-hover:text-cyan-400 transition-colors duration-300" />
-                    <div className="absolute inset-0 bg-cyan-400/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div className="text-white text-2xl font-semibold mb-3">Drop your training dataset here</div>
-                  <div className="text-gray-400 text-lg mb-6">or click to browse files</div>
-                  <div className="text-gray-500">Supported: CSV, JSON, TXT, Parquet • Max size 2GB</div>
+                  {selectedFile ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-center space-x-4">
+                        <FileText className="w-12 h-12 text-green-400" />
+                        <div className="text-left">
+                          <div className="text-white text-lg font-semibold">{selectedFile.name}</div>
+                          <div className="text-gray-400">{formatFileSize(selectedFile.size)}</div>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            removeFile()
+                          }}
+                          className="text-red-400 hover:text-red-300 transition-colors"
+                        >
+                          <X className="w-6 h-6" />
+                        </button>
+                      </div>
+                      <div className="text-green-400 text-sm">File ready for upload</div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="relative inline-block mb-6">
+                        <Upload className="w-16 h-16 text-gray-400 group-hover:text-cyan-400 transition-colors duration-300" />
+                        <div className="absolute inset-0 bg-cyan-400/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <div className="text-white text-2xl font-semibold mb-3">Drop your training dataset here</div>
+                      <div className="text-gray-400 text-lg mb-6">or click to browse files</div>
+                      <div className="text-gray-500">All file types supported • Max size 2GB</div>
+                    </>
+                  )}
                 </motion.div>
               </div>
             </div>
@@ -614,12 +783,41 @@ export default function Component() {
                 placeholder="e.g. Build a language model for legal document analysis with 12 transformer layers, 768 hidden dimensions, and multi-head attention for processing complex legal terminology and context..."
                 className="bg-gray-900/60 backdrop-blur-sm border-gray-700/60 text-white placeholder-gray-400 min-h-[160px] resize-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20 rounded-2xl text-lg p-8 transition-all duration-300"
                 maxLength={maxLength}
+                disabled={isSubmitting}
               />
               <div className="absolute bottom-6 right-6 text-gray-500 font-mono bg-black/50 px-3 py-1 rounded-lg">
                 {description.length}/{maxLength}
               </div>
             </div>
           </motion.div>
+
+          {/* Status Messages */}
+          <AnimatePresence>
+            {submitStatus.type && (
+              <motion.div
+                className={`mb-8 p-6 rounded-2xl backdrop-blur-sm border ${
+                  submitStatus.type === "success"
+                    ? "bg-green-900/40 border-green-500/50 text-green-200"
+                    : "bg-red-900/40 border-red-500/50 text-red-200"
+                }`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <div className="flex items-center space-x-3">
+                  {submitStatus.type === "success" ? (
+                    <CheckCircle className="w-6 h-6 text-green-400" />
+                  ) : (
+                    <AlertCircle className="w-6 h-6 text-red-400" />
+                  )}
+                  <div>
+                    <div className="font-semibold">{submitStatus.message}</div>
+                    {submitStatus.jobId && <div className="text-sm opacity-80 mt-1">Job ID: {submitStatus.jobId}</div>}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Enhanced Forge Button */}
           <motion.div
@@ -628,16 +826,27 @@ export default function Component() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 2.4, duration: 0.8 }}
           >
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.div whileHover={{ scale: isSubmitting ? 1 : 1.05 }} whileTap={{ scale: isSubmitting ? 1 : 0.95 }}>
               <Button
-                className="relative bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 hover:from-cyan-400 hover:via-purple-400 hover:to-pink-400 text-white px-16 py-6 rounded-2xl font-bold text-2xl shadow-2xl border-0 overflow-hidden group"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="relative bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 hover:from-cyan-400 hover:via-purple-400 hover:to-pink-400 text-white px-16 py-6 rounded-2xl font-bold text-2xl shadow-2xl border-0 overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
                 size="lg"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-purple-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative flex items-center">
-                  <Brain className="w-8 h-8 mr-4" />
-                  Forge Transformer
-                  <Sparkles className="w-6 h-6 ml-4" />
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-8 h-8 mr-4 animate-spin" />
+                      Forging...
+                    </>
+                  ) : (
+                    <>
+                      <Brain className="w-8 h-8 mr-4" />
+                      Forge Transformer
+                      <Sparkles className="w-6 h-6 ml-4" />
+                    </>
+                  )}
                 </div>
               </Button>
             </motion.div>

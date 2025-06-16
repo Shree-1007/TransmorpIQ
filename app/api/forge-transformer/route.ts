@@ -7,6 +7,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get("file") as File | null
     const description = formData.get("description") as string
+    const email = formData.get("email") as string
     const timestamp = new Date().toISOString()
 
     // Validate description
@@ -16,6 +17,16 @@ export async function POST(request: NextRequest) {
 
     if (description.length > 500) {
       return NextResponse.json({ error: "Description must be 500 characters or less" }, { status: 400 })
+    }
+
+    // Validate email
+    if (!email || email.trim().length === 0) {
+      return NextResponse.json({ error: "Email is required" }, { status: 400 })
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: "Please enter a valid email address" }, { status: 400 })
     }
 
     // Validate file if provided
@@ -38,22 +49,26 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    console.log("Email received:", email)
+
     // Simulate processing time
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    await new Promise((resolve) => setTimeout(resolve, 3000))
 
     // Here you would typically:
     // 1. Save the file to cloud storage (AWS S3, Google Cloud, etc.)
     // 2. Process the file and description
     // 3. Start the transformer training process
-    // 4. Return a job ID or status
+    // 4. Send confirmation email to the user
+    // 5. Return a job ID or status
 
     const response = {
       success: true,
-      message: "Transformer forging initiated successfully!",
+      message: "🚀 Transformer forging initiated successfully! We'll send updates to your email.",
       jobId: `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp,
       data: {
         description: description.trim(),
+        email: email.trim(),
         file: file
           ? {
               name: file.name,

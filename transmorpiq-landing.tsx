@@ -23,6 +23,7 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
+  Mail,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -130,6 +131,165 @@ const TokenFlow = ({
   )
 }
 
+// Infinity Loading Component with actual ♾️ symbol
+const InfinityLoader = () => (
+  <motion.div className="relative flex items-center justify-center w-20 h-12 mx-auto mb-6">
+    <motion.div
+      className="text-6xl bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
+      animate={{
+        rotateY: [0, 360],
+        scale: [1, 1.1, 1],
+      }}
+      transition={{
+        rotateY: { duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
+        scale: { duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" },
+      }}
+    >
+      ♾️
+    </motion.div>
+
+    {/* Glowing effect */}
+    <motion.div
+      className="absolute inset-0 bg-gradient-to-r from-cyan-400/30 via-purple-400/30 to-pink-400/30 rounded-full blur-xl"
+      animate={{
+        opacity: [0.3, 0.8, 0.3],
+        scale: [0.8, 1.2, 0.8],
+      }}
+      transition={{
+        duration: 2,
+        repeat: Number.POSITIVE_INFINITY,
+        ease: "easeInOut",
+      }}
+    />
+
+    {/* Orbiting particles */}
+    {[...Array(3)].map((_, i) => (
+      <motion.div
+        key={i}
+        className="absolute w-1 h-1 bg-cyan-400/80 rounded-full"
+        animate={{
+          rotate: [0, 360],
+          scale: [0.5, 1, 0.5],
+        }}
+        transition={{
+          rotate: { duration: 4 + i, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
+          scale: { duration: 2, repeat: Number.POSITIVE_INFINITY, delay: i * 0.5 },
+        }}
+        style={{
+          transformOrigin: `${25 + i * 10}px center`,
+        }}
+      />
+    ))}
+  </motion.div>
+)
+
+// Processing Modal Component
+const ProcessingModal = ({
+  isOpen,
+  onClose,
+  message,
+  jobId,
+}: {
+  isOpen: boolean
+  onClose: () => void
+  message: string
+  jobId?: string
+}) => (
+  <AnimatePresence>
+    {isOpen && (
+      <motion.div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        {/* Backdrop */}
+        <motion.div
+          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+        />
+
+        {/* Modal */}
+        <motion.div
+          className="relative bg-gray-900/90 backdrop-blur-md border border-gray-700/50 rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl"
+          initial={{ scale: 0.8, opacity: 0, y: 50 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.8, opacity: 0, y: 50 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
+          {/* Close Button */}
+          <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+            <X className="w-6 h-6" />
+          </button>
+
+          {/* Content */}
+          <div className="text-center">
+            {/* Infinity Loader */}
+            <InfinityLoader />
+
+            {/* Title */}
+            <h3 className="text-2xl font-bold text-white mb-4 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+              Forging in Progress
+            </h3>
+
+            {/* Backend Message - Display exactly as received */}
+            <div className="bg-gray-800/50 rounded-lg p-4 mb-6">
+              <p className="text-green-400 leading-relaxed text-lg font-medium">{message}</p>
+            </div>
+
+            {/* Job ID */}
+            {jobId && (
+              <div className="bg-gray-800/50 rounded-lg p-3 mb-6">
+                <p className="text-sm text-gray-400 mb-1">Job ID</p>
+                <p className="text-cyan-400 font-mono text-sm">{jobId}</p>
+              </div>
+            )}
+
+            {/* Progress Indicators */}
+            <div className="space-y-3 mb-6">
+              {[
+                { label: "Analyzing dataset", completed: true },
+                { label: "Initializing architecture", completed: true },
+                { label: "Training transformer", completed: false },
+                { label: "Optimizing parameters", completed: false },
+              ].map((step, index) => (
+                <motion.div
+                  key={step.label}
+                  className="flex items-center space-x-3"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.2 }}
+                >
+                  <div className={`w-2 h-2 rounded-full ${step.completed ? "bg-green-400" : "bg-gray-600"}`} />
+                  <span className={`text-sm ${step.completed ? "text-green-400" : "text-gray-400"}`}>{step.label}</span>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Cancel Button */}
+            <Button
+              onClick={onClose}
+              variant="outline"
+              className="w-full bg-transparent border-gray-600 text-gray-300 hover:bg-gray-800/50 hover:text-white transition-all duration-300"
+            >
+              Continue in Background
+            </Button>
+          </div>
+
+          {/* Decorative Elements */}
+          <div className="absolute -top-2 -left-2 w-4 h-4 border-l-2 border-t-2 border-cyan-400/50 rounded-tl-lg" />
+          <div className="absolute -top-2 -right-2 w-4 h-4 border-r-2 border-t-2 border-purple-400/50 rounded-tr-lg" />
+          <div className="absolute -bottom-2 -left-2 w-4 h-4 border-l-2 border-b-2 border-purple-400/50 rounded-bl-lg" />
+          <div className="absolute -bottom-2 -right-2 w-4 h-4 border-r-2 border-b-2 border-cyan-400/50 rounded-br-lg" />
+        </motion.div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+)
+
 // File size formatter
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return "0 Bytes"
@@ -141,6 +301,7 @@ const formatFileSize = (bytes: number): string => {
 
 export default function Component() {
   const [description, setDescription] = useState("")
+  const [email, setEmail] = useState("")
   const [currentSlide, setCurrentSlide] = useState(0)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -151,6 +312,7 @@ export default function Component() {
     message: string
     jobId?: string
   }>({ type: null, message: "" })
+  const [showProcessingModal, setShowProcessingModal] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
 
   const maxLength = 500
@@ -236,12 +398,30 @@ export default function Component() {
       return
     }
 
+    if (!email.trim()) {
+      setSubmitStatus({
+        type: "error",
+        message: "Please provide your email address",
+      })
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setSubmitStatus({
+        type: "error",
+        message: "Please enter a valid email address",
+      })
+      return
+    }
+
     setIsSubmitting(true)
     setSubmitStatus({ type: null, message: "" })
 
     try {
       const formData = new FormData()
       formData.append("description", description.trim())
+      formData.append("email", email.trim())
 
       if (selectedFile) {
         formData.append("file", selectedFile)
@@ -261,12 +441,16 @@ export default function Component() {
           jobId: result.jobId,
         })
 
+        // Show processing modal
+        setShowProcessingModal(true)
+
         // Reset form after successful submission
         setTimeout(() => {
           setDescription("")
+          setEmail("")
           setSelectedFile(null)
           setSubmitStatus({ type: null, message: "" })
-        }, 5000)
+        }, 8000)
       } else {
         setSubmitStatus({
           type: "error",
@@ -768,7 +952,7 @@ export default function Component() {
 
           {/* Enhanced Vision Section */}
           <motion.div
-            className="mb-12"
+            className="mb-8"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 2.2, duration: 0.8 }}
@@ -787,6 +971,31 @@ export default function Component() {
               />
               <div className="absolute bottom-6 right-6 text-gray-500 font-mono bg-black/50 px-3 py-1 rounded-lg">
                 {description.length}/{maxLength}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Email Field */}
+          <motion.div
+            className="mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2.3, duration: 0.8 }}
+          >
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                <Mail className="w-5 h-5 text-gray-400" />
+              </div>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your.email@example.com"
+                className="w-full bg-gray-900/60 backdrop-blur-sm border border-gray-700/60 text-white placeholder-gray-400 rounded-2xl text-lg pl-14 pr-8 py-4 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-300"
+                disabled={isSubmitting}
+              />
+              <div className="absolute inset-y-0 right-0 pr-6 flex items-center">
+                <span className="text-gray-500 text-sm">We'll send updates here</span>
               </div>
             </div>
           </motion.div>
@@ -853,6 +1062,14 @@ export default function Component() {
           </motion.div>
         </div>
       </div>
+
+      {/* Processing Modal */}
+      <ProcessingModal
+        isOpen={showProcessingModal}
+        onClose={() => setShowProcessingModal(false)}
+        message={submitStatus.message}
+        jobId={submitStatus.jobId}
+      />
     </div>
   )
 }

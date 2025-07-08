@@ -1,100 +1,85 @@
-import { type NextRequest, NextResponse } from "next/server"
-
-const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024 // 2GB in bytes
-
-export async function POST(request: NextRequest) {
-  try {
-    const formData = await request.formData()
-    const file = formData.get("file") as File | null
-    const description = formData.get("description") as string
-    const email = formData.get("email") as string
-    const timestamp = new Date().toISOString()
-
-    // Validate description
-    if (!description || description.trim().length === 0) {
-      return NextResponse.json({ error: "Description is required" }, { status: 400 })
-    }
-
-    if (description.length > 500) {
-      return NextResponse.json({ error: "Description must be 500 characters or less" }, { status: 400 })
-    }
-
-    // Validate email
-    if (!email || email.trim().length === 0) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 })
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      return NextResponse.json({ error: "Please enter a valid email address" }, { status: 400 })
-    }
-
-    // Validate file if provided
-    if (file) {
-      // Check file size
-      if (file.size > MAX_FILE_SIZE) {
-        return NextResponse.json({ error: "File size must be 2GB or less" }, { status: 400 })
-      }
-
-      // Check if file is empty
-      if (file.size === 0) {
-        return NextResponse.json({ error: "File cannot be empty" }, { status: 400 })
-      }
-
-      console.log("File received:", {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        lastModified: file.lastModified,
-      })
-    }
-
-    console.log("Email received:", email)
-
-    // Simulate processing time
-    await new Promise((resolve) => setTimeout(resolve, 3000))
-
-    // Here you would typically:
-    // 1. Save the file to cloud storage (AWS S3, Google Cloud, etc.)
-    // 2. Process the file and description
-    // 3. Start the transformer training process
-    // 4. Send confirmation email to the user
-    // 5. Return a job ID or status
-
-    const response = {
-      success: true,
-      message: "🚀 Transformer forging initiated successfully! We'll send updates to your email.",
-      jobId: `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      timestamp,
-      data: {
-        description: description.trim(),
-        email: email.trim(),
-        file: file
-          ? {
-              name: file.name,
-              size: file.size,
-              type: file.type,
-              sizeFormatted: formatFileSize(file.size),
-            }
-          : null,
-        estimatedTime: "15-30 minutes",
-        status: "processing",
-      },
-    }
-
-    return NextResponse.json(response)
-  } catch (error) {
-    console.error("Error processing request:", error)
-    return NextResponse.json({ error: "Internal server error. Please try again." }, { status: 500 })
+// New handleSubmit function
+const handleSubmit = async () => {
+  // --- (Keep your existing validation checks for email/description here) ---
+  if (!description.trim() || !email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+     setSubmitStatus({ type: "error", message: "Please fill out all fields correctly." });
+     return;
   }
-}
 
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) return "0 Bytes"
+  if (!selectedFile) {
+      setSubmitStatus({ type: "error", message: "Please select a file to upload." });
+      return;
+  }
 
-  const k = 1024
-  const sizes = ["Bytes", "KB", "MB", "GB"]
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  setIsSubmitting(true);
+  setSubmitStatus({ type: null, message: "" });
 
-  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-}
+  try {
+    // STEP 1: Get the secure upload URL from our Next.js backend
+    setSubmitStatus({ type: "success", message: "🚀 Initializing secure upload..." });
+    const getUrlResponse = await fetch("/api/forge-transformer", {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileName: selectedFile.name,
+        fileType: selectedFile.type,
+        email: email.trim(),
+        description: description.trim(),
+      }),
+    });
+
+    const { success, signedUrl, gcsUri } = await getUrlResponse.json();
+
+    if (!success) {
+      throw new Error("Could not initialize upload.");
+    }
+
+    // STEP 2: Upload the file DIRECTLY to Google Cloud Storage
+    setSubmitStatus({ type: "success", message: "⬆️ Uploading dataset to Google Cloud..." });
+    const uploadResponse = await fetch(signedUrl, {
+      method: 'PUT',
+      body: selectedFile,
+      headers: { 'Content-Type': selectedFile.type },
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error("File upload to Google Cloud failed.");
+    }
+    
+    // STEP 3: Tell our backend to start the training job
+    // IMPORTANT: This will call your future Cloud Run URL directly
+    setSubmitStatus({ type: "success", message: "✅ Starting transformer training job..." });
+    const startJobResponse = await fetch("https://your-manager-service-url-uc.a.run.app/start-training-job", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            email: email.trim(),
+            description: description.trim(),
+            gcsUri: gcsUri, // The GCS path of the uploaded file
+        }),
+    });
+    
+    const result = await startJobResponse.json();
+    
+    if (!startJobResponse.ok) {
+        throw new Error(result.error || "Failed to start training job.");
+    }
+
+    // Show the processing modal with the job ID from the backend
+    setSubmitStatus({
+      type: "success",
+      message: result.message,
+      jobId: result.jobId,
+    });
+    setShowProcessingModal(true);
+    
+  } catch (error: any) {
+    console.error("Submission error:", error);
+    setSubmitStatus({
+      type: "error",
+      message: error.message || "An unknown error occurred.",
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};

@@ -342,6 +342,13 @@ export default function Component() {
   // File handling functions
   const handleFileSelect = useCallback(
     (file: File) => {
+      if (file.type !== "application/pdf") {
+        setSubmitStatus({
+          type: "error",
+          message: "Only PDF files are allowed.",
+        })
+        return
+      }
       if (file.size > maxFileSize) {
         setSubmitStatus({
           type: "error",
@@ -388,85 +395,91 @@ export default function Component() {
     setSubmitStatus({ type: null, message: "" })
   }
 
-  // Form submission
+  // New handleSubmit function
   const handleSubmit = async () => {
-    if (!description.trim()) {
-      setSubmitStatus({
-        type: "error",
-        message: "Please provide a description for your transformer architecture",
-      })
-      return
+    // --- (Keep your existing validation checks for email/description here) ---
+    if (!description.trim() || !email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+       setSubmitStatus({ type: "error", message: "Please fill out all fields correctly." });
+       return;
     }
 
-    if (!email.trim()) {
-      setSubmitStatus({
-        type: "error",
-        message: "Please provide your email address",
-      })
-      return
+    if (!selectedFile) {
+        setSubmitStatus({ type: "error", message: "Please select a file to upload." });
+        return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      setSubmitStatus({
-        type: "error",
-        message: "Please enter a valid email address",
-      })
-      return
-    }
-
-    setIsSubmitting(true)
-    setSubmitStatus({ type: null, message: "" })
+    setIsSubmitting(true);
+    setSubmitStatus({ type: null, message: "" });
 
     try {
-      const formData = new FormData()
-      formData.append("description", description.trim())
-      formData.append("email", email.trim())
-
-      if (selectedFile) {
-        formData.append("file", selectedFile)
-      }
-
-      const response = await fetch("/api/forge-transformer", {
+      // STEP 1: Get the secure upload URL from our Next.js backend
+      setSubmitStatus({ type: "success", message: "🚀 Initializing secure upload..." });
+      const getUrlResponse = await fetch("/api/forge-transformer", {
         method: "POST",
-        body: formData,
-      })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fileName: selectedFile.name,
+          fileType: selectedFile.type,
+          email: email.trim(),
+          description: description.trim(),
+        }),
+      });
 
-      const result = await response.json()
+      const { success, signedUrl, gcsUri } = await getUrlResponse.json();
 
-      if (response.ok) {
-        setSubmitStatus({
-          type: "success",
-          message: result.message,
-          jobId: result.jobId,
-        })
-
-        // Show processing modal
-        setShowProcessingModal(true)
-
-        // Reset form after successful submission
-        setTimeout(() => {
-          setDescription("")
-          setEmail("")
-          setSelectedFile(null)
-          setSubmitStatus({ type: null, message: "" })
-        }, 8000)
-      } else {
-        setSubmitStatus({
-          type: "error",
-          message: result.error || "An error occurred while processing your request",
-        })
+      if (!success) {
+        throw new Error("Could not initialize upload.");
       }
-    } catch (error) {
-      console.error("Submission error:", error)
+
+      // STEP 2: Upload the file DIRECTLY to Google Cloud Storage
+      setSubmitStatus({ type: "success", message: "⬆️ Uploading dataset to Google Cloud..." });
+      const uploadResponse = await fetch(signedUrl, {
+        method: 'PUT',
+        body: selectedFile,
+        headers: { 'Content-Type': selectedFile.type },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("File upload to Google Cloud failed.");
+      }
+      
+      // STEP 3: Tell our backend to start the training job
+      // IMPORTANT: This will call your future Cloud Run URL directly
+      setSubmitStatus({ type: "success", message: "✅ Starting transformer training job..." });
+      const startJobResponse = await fetch("https://your-manager-service-url-uc.a.run.app/start-training-job", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              email: email.trim(),
+              description: description.trim(),
+              gcsUri: gcsUri, // The GCS path of the uploaded file
+          }),
+      });
+      
+      const result = await startJobResponse.json();
+      
+      if (!startJobResponse.ok) {
+          throw new Error(result.error || "Failed to start training job.");
+      }
+
+      // Show the processing modal with the job ID from the backend
+      setSubmitStatus({
+        type: "success",
+        message: result.message,
+        jobId: result.jobId,
+      });
+      setShowProcessingModal(true);
+      
+    } catch (error: any) {
+      console.error("Submission error:", error);
       setSubmitStatus({
         type: "error",
-        message: "Network error. Please check your connection and try again.",
-      })
+        message: error.message || "An unknown error occurred.",
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   if (!isMounted) {
     return <div className="min-h-screen bg-black" />
@@ -911,7 +924,7 @@ export default function Component() {
                 onDragLeave={handleDragLeave}
                 onClick={() => document.getElementById("file-input")?.click()}
               >
-                <input id="file-input" type="file" onChange={handleFileChange} className="hidden" accept="*/*" />
+                <input id="file-input" type="file" onChange={handleFileChange} className="hidden" accept="application/pdf" />
 
                 <motion.div whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
                   {selectedFile ? (

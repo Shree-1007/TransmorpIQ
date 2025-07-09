@@ -342,13 +342,6 @@ export default function Component() {
   // File handling functions
   const handleFileSelect = useCallback(
     (file: File) => {
-      if (file.type !== "application/pdf") {
-        setSubmitStatus({
-          type: "error",
-          message: "Only PDF files are allowed.",
-        })
-        return
-      }
       if (file.size > maxFileSize) {
         setSubmitStatus({
           type: "error",
@@ -395,14 +388,13 @@ export default function Component() {
     setSubmitStatus({ type: null, message: "" })
   }
 
-  // New handleSubmit function
+  // Form submission
   const handleSubmit = async () => {
     // --- (Keep your existing validation checks for email/description here) ---
     if (!description.trim() || !email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
        setSubmitStatus({ type: "error", message: "Please fill out all fields correctly." });
        return;
     }
-
     if (!selectedFile) {
         setSubmitStatus({ type: "error", message: "Please select a file to upload." });
         return;
@@ -420,19 +412,17 @@ export default function Component() {
         body: JSON.stringify({
           fileName: selectedFile.name,
           fileType: selectedFile.type,
-          email: email.trim(),
-          description: description.trim(),
         }),
       });
 
-      const { success, signedUrl, gcsUri } = await getUrlResponse.json();
+      const { success, signedUrl, gcsUri, jobId } = await getUrlResponse.json();
 
-      if (!success) {
-        throw new Error("Could not initialize upload.");
+      if (!success || !signedUrl || !gcsUri) {
+        throw new Error("Could not initialize secure upload.");
       }
 
-      // STEP 2: Upload the file DIRECTLY to Google Cloud Storage
-      setSubmitStatus({ type: "success", message: "⬆️ Uploading dataset to Google Cloud..." });
+      // STEP 2: Upload the file DIRECTLY to Google Cloud Storage from the browser
+      setSubmitStatus({ type: "success", message: "⬆️ Uploading dataset directly to secure storage..." });
       const uploadResponse = await fetch(signedUrl, {
         method: 'PUT',
         body: selectedFile,
@@ -440,29 +430,29 @@ export default function Component() {
       });
 
       if (!uploadResponse.ok) {
-        throw new Error("File upload to Google Cloud failed.");
+        throw new Error("File upload failed. Please try again.");
       }
       
       // STEP 3: Tell our backend to start the training job
-      // IMPORTANT: This will call your future Cloud Run URL directly
-      setSubmitStatus({ type: "success", message: "✅ Starting transformer training job..." });
-      const startJobResponse = await fetch("https://your-manager-service-url-uc.a.run.app/start-training-job", {
+      setSubmitStatus({ type: "success", message: "✅ Finalizing... Starting transformer forge." });
+      const startJobResponse = await fetch('https://manager-service-513450512212.us-central1.run.app/start-training-job', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+              jobId: jobId,
               email: email.trim(),
               description: description.trim(),
-              gcsUri: gcsUri, // The GCS path of the uploaded file
+              gcsUri: gcsUri,
           }),
       });
       
       const result = await startJobResponse.json();
       
       if (!startJobResponse.ok) {
-          throw new Error(result.error || "Failed to start training job.");
+          throw new Error(result.error || "Failed to start the training job.");
       }
 
-      // Show the processing modal with the job ID from the backend
+      // Show the processing modal with the real Job ID from the backend
       setSubmitStatus({
         type: "success",
         message: result.message,
@@ -924,7 +914,7 @@ export default function Component() {
                 onDragLeave={handleDragLeave}
                 onClick={() => document.getElementById("file-input")?.click()}
               >
-                <input id="file-input" type="file" onChange={handleFileChange} className="hidden" accept="application/pdf" />
+                <input id="file-input" type="file" onChange={handleFileChange} className="hidden" accept="*/*" />
 
                 <motion.div whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
                   {selectedFile ? (

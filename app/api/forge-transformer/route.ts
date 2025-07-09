@@ -1,85 +1,35 @@
-// New handleSubmit function
-const handleSubmit = async () => {
-  // --- (Keep your existing validation checks for email/description here) ---
-  if (!description.trim() || !email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-     setSubmitStatus({ type: "error", message: "Please fill out all fields correctly." });
-     return;
-  }
+import { type NextRequest, NextResponse } from "next/server";
 
-  if (!selectedFile) {
-      setSubmitStatus({ type: "error", message: "Please select a file to upload." });
-      return;
-  }
+// This should be the URL of the "Manager" service you deployed
+const MANAGER_SERVICE_URL = "https://manager-service-513450512212.us-central1.run.app"; 
 
-  setIsSubmitting(true);
-  setSubmitStatus({ type: null, message: "" });
-
+export async function POST(request: NextRequest) {
   try {
-    // STEP 1: Get the secure upload URL from our Next.js backend
-    setSubmitStatus({ type: "success", message: "🚀 Initializing secure upload..." });
-    const getUrlResponse = await fetch("/api/forge-transformer", {
-      method: "POST",
+    const { fileName, fileType } = await request.json();
+
+    if (!fileName || !fileType) {
+      return NextResponse.json({ error: "File details are required" }, { status: 400 });
+    }
+
+    // Call our Python backend to generate a signed URL
+    const signedUrlResponse = await fetch(`${MANAGER_SERVICE_URL}/generate-upload-url`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fileName: selectedFile.name,
-        fileType: selectedFile.type,
-        email: email.trim(),
-        description: description.trim(),
-      }),
+      body: JSON.stringify({ fileName, fileType }),
     });
 
-    const { success, signedUrl, gcsUri } = await getUrlResponse.json();
-
-    if (!success) {
-      throw new Error("Could not initialize upload.");
+    if (!signedUrlResponse.ok) {
+      const errorText = await signedUrlResponse.text();
+      console.error("Backend error:", errorText);
+      return NextResponse.json({ error: "Could not create upload session." }, { status: 500 });
     }
 
-    // STEP 2: Upload the file DIRECTLY to Google Cloud Storage
-    setSubmitStatus({ type: "success", message: "⬆️ Uploading dataset to Google Cloud..." });
-    const uploadResponse = await fetch(signedUrl, {
-      method: 'PUT',
-      body: selectedFile,
-      headers: { 'Content-Type': selectedFile.type },
-    });
+    // Pass the secure URL back to the frontend
+    const { signedUrl, gcsUri, jobId } = await signedUrlResponse.json();
+    return NextResponse.json({ success: true, signedUrl, gcsUri, jobId });
 
-    if (!uploadResponse.ok) {
-      throw new Error("File upload to Google Cloud failed.");
-    }
-    
-    // STEP 3: Tell our backend to start the training job
-    // IMPORTANT: This will call your future Cloud Run URL directly
-    setSubmitStatus({ type: "success", message: "✅ Starting transformer training job..." });
-    const startJobResponse = await fetch("https://your-manager-service-url-uc.a.run.app/start-training-job", {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            email: email.trim(),
-            description: description.trim(),
-            gcsUri: gcsUri, // The GCS path of the uploaded file
-        }),
-    });
-    
-    const result = await startJobResponse.json();
-    
-    if (!startJobResponse.ok) {
-        throw new Error(result.error || "Failed to start training job.");
-    }
-
-    // Show the processing modal with the job ID from the backend
-    setSubmitStatus({
-      type: "success",
-      message: result.message,
-      jobId: result.jobId,
-    });
-    setShowProcessingModal(true);
-    
-  } catch (error: any) {
-    console.error("Submission error:", error);
-    setSubmitStatus({
-      type: "error",
-      message: error.message || "An unknown error occurred.",
-    });
-  } finally {
-    setIsSubmitting(false);
+  } catch (error) {
+    console.error("Error in forge-transformer API route:", error);
+    return NextResponse.json({ error: "Internal server error." }, { status: 500 });
   }
-};
+}

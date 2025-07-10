@@ -24,53 +24,49 @@ import {
   AlertCircle,
   Loader2,
   Mail,
+  Clock,
+  Key,
+  MessageSquare,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
+// --- UPDATED SLIDES ---
 const slides = [
   {
     id: 1,
-    title: "Neural Architecture",
-    subtitle: "Advanced AI Processing",
-    description: "Revolutionary neural networks that adapt and evolve with unprecedented learning capabilities",
-    icon: <Brain className="w-20 h-20" />,
-    gradient: "from-purple-500/40 via-pink-500/30 to-purple-600/40",
-    stats: { accuracy: "99.7%", speed: "2.3ms", nodes: "10M+" },
+    title: "1. Upload Your Data",
+    subtitle: "Secure & Simple",
+    description: "Start by uploading your private PDF dataset. Our platform ensures your data is handled securely, used only for your training job, and never stored long-term.",
+    icon: <Upload className="w-20 h-20" />,
+    gradient: "from-cyan-500/40 via-blue-500/30 to-teal-600/40",
+    stats: { "Max Size": "2GB", "Format": "PDF", "Security": "Encrypted" },
   },
   {
     id: 2,
-    title: "Quantum Computing",
-    subtitle: "Next-Gen Processing",
-    description: "Harness quantum mechanics for exponentially faster computational problem solving",
-    icon: <Zap className="w-20 h-20" />,
-    gradient: "from-cyan-500/40 via-blue-500/30 to-teal-600/40",
-    stats: { qubits: "1024", coherence: "100μs", gates: "99.9%" },
+    title: "2. Describe Your Vision",
+    subtitle: "AI-Powered Configuration",
+    description: "Tell us what you want your model to do. Our advanced AI assistant will analyze your needs and automatically design the optimal transformer architecture for your task.",
+    icon: <MessageSquare className="w-20 h-20" />,
+    gradient: "from-purple-500/40 via-pink-500/30 to-purple-600/40",
+    stats: { "Parameters": "Auto", "Tuning": "Automated", "Expertise": "None Needed" },
   },
   {
     id: 3,
-    title: "Distributed Intelligence",
-    subtitle: "Scalable AI Network",
-    description: "Seamlessly distributed AI architecture that scales across global infrastructure",
-    icon: <Network className="w-20 h-20" />,
+    title: "3. Receive Your Model",
+    subtitle: "Deployed & Ready",
+    description: "Once training is complete, you'll receive an email with a link to your endpoint, fully-deployed model on Hugging Face. Ready to use, no extra steps required.",
+    icon: <Rocket className="w-20 h-20" />,
     gradient: "from-emerald-500/40 via-green-500/30 to-teal-600/40",
-    stats: { nodes: "50K+", latency: "<1ms", uptime: "99.99%" },
-  },
-  {
-    id: 4,
-    title: "Cognitive Synthesis",
-    subtitle: "Human-Like Reasoning",
-    description: "Advanced reasoning systems that mirror human cognitive processes and intuition",
-    icon: <Cpu className="w-20 h-20" />,
-    gradient: "from-orange-500/40 via-red-500/30 to-pink-600/40",
-    stats: { reasoning: "95%", memory: "∞", learning: "Real-time" },
+    stats: { "Platform": "Hugging Face", "Notification": "Email", "Ownership": "100%" },
   },
 ]
 
+// --- UPDATED FEATURES ---
 const features = [
-  { icon: <Database className="w-6 h-6" />, title: "Unlimited Data", desc: "Process datasets of any size" },
-  { icon: <Shield className="w-6 h-6" />, title: "Enterprise Security", desc: "Military-grade encryption" },
-  { icon: <Rocket className="w-6 h-6" />, title: "Lightning Fast", desc: "Sub-millisecond response times" },
-  { icon: <Sparkles className="w-6 h-6" />, title: "Auto-Optimization", desc: "Self-improving algorithms" },
+  { icon: <Brain className="w-6 h-6" />, title: "Custom Trained For You", desc: "Your model is built from scratch, exclusively on your data for your specific task." },
+  { icon: <Shield className="w-6 h-6" />, title: "Your Data, Your Privacy", desc: "We use your data only for training, then it's deleted. Your privacy is paramount." },
+  { icon: <Key className="w-6 h-6" />, title: "Full Model Ownership", desc: "Receive a link to your model on Hugging Face. You have full control." },
+  { icon: <Zap className="w-6 h-6" />, title: "Completely Automated", desc: "No code, no DevOps. Just describe your needs and let our platform handle the rest." },
 ]
 
 // Transformer Architecture Visualization Components
@@ -147,8 +143,6 @@ const InfinityLoader = () => (
     >
       ♾️
     </motion.div>
-
-    {/* Glowing effect */}
     <motion.div
       className="absolute inset-0 bg-gradient-to-r from-cyan-400/30 via-purple-400/30 to-pink-400/30 rounded-full blur-xl"
       animate={{
@@ -161,8 +155,6 @@ const InfinityLoader = () => (
         ease: "easeInOut",
       }}
     />
-
-    {/* Orbiting particles */}
     {[...Array(3)].map((_, i) => (
       <motion.div
         key={i}
@@ -183,17 +175,17 @@ const InfinityLoader = () => (
   </motion.div>
 )
 
-// Processing Modal Component
+// Simplified Processing Modal Component
 const ProcessingModal = ({
   isOpen,
   onClose,
-  message,
   jobId,
+  estimatedTime,
 }: {
   isOpen: boolean
   onClose: () => void
-  message: string
   jobId?: string
+  estimatedTime: string
 }) => (
   <AnimatePresence>
     {isOpen && (
@@ -203,16 +195,7 @@ const ProcessingModal = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
-        {/* Backdrop */}
-        <motion.div
-          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-        />
-
-        {/* Modal */}
+        <motion.div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
         <motion.div
           className="relative bg-gray-900/90 backdrop-blur-md border border-gray-700/50 rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl"
           initial={{ scale: 0.8, opacity: 0, y: 50 }}
@@ -220,70 +203,43 @@ const ProcessingModal = ({
           exit={{ scale: 0.8, opacity: 0, y: 50 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
-          {/* Close Button */}
           <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
             <X className="w-6 h-6" />
           </button>
-
-          {/* Content */}
           <div className="text-center">
-            {/* Infinity Loader */}
             <InfinityLoader />
-
-            {/* Title */}
             <h3 className="text-2xl font-bold text-white mb-4 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              Forging in Progress
+              Forge in Progress
             </h3>
-
-            {/* Backend Message - Display exactly as received */}
             <div className="bg-gray-800/50 rounded-lg p-4 mb-6">
-              <p className="text-green-400 leading-relaxed text-lg font-medium">{message}</p>
+              <p className="text-green-400 leading-relaxed text-lg font-medium">
+                Your request is submitted! We'll email you upon completion.
+              </p>
             </div>
-
-            {/* Job ID */}
+            
             {jobId && (
-              <div className="bg-gray-800/50 rounded-lg p-3 mb-6">
+              <div className="bg-gray-800/50 rounded-lg p-3 mb-4">
                 <p className="text-sm text-gray-400 mb-1">Job ID</p>
                 <p className="text-cyan-400 font-mono text-sm">{jobId}</p>
               </div>
             )}
-
-            {/* Progress Indicators */}
-            <div className="space-y-3 mb-6">
-              {[
-                { label: "Analyzing dataset", completed: true },
-                { label: "Initializing architecture", completed: true },
-                { label: "Training transformer", completed: false },
-                { label: "Optimizing parameters", completed: false },
-              ].map((step, index) => (
-                <motion.div
-                  key={step.label}
-                  className="flex items-center space-x-3"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.2 }}
-                >
-                  <div className={`w-2 h-2 rounded-full ${step.completed ? "bg-green-400" : "bg-gray-600"}`} />
-                  <span className={`text-sm ${step.completed ? "text-green-400" : "text-gray-400"}`}>{step.label}</span>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Cancel Button */}
+            
+            {estimatedTime && (
+              <div className="bg-gray-800/50 rounded-lg p-3 mb-6 flex items-center justify-center space-x-2">
+                <Clock className="w-4 h-4 text-gray-400"/>
+                <p className="text-sm text-gray-400">Estimated Time:</p>
+                <p className="text-cyan-400 font-mono text-sm">{estimatedTime}</p>
+              </div>
+            )}
+            
             <Button
               onClick={onClose}
               variant="outline"
-              className="w-full bg-transparent border-gray-600 text-gray-300 hover:bg-gray-800/50 hover:text-white transition-all duration-300"
+              className="w-full bg-transparent border-gray-600 text-gray-300 hover:bg-gray-800/50 hover:text-white"
             >
               Continue in Background
             </Button>
           </div>
-
-          {/* Decorative Elements */}
-          <div className="absolute -top-2 -left-2 w-4 h-4 border-l-2 border-t-2 border-cyan-400/50 rounded-tl-lg" />
-          <div className="absolute -top-2 -right-2 w-4 h-4 border-r-2 border-t-2 border-purple-400/50 rounded-tr-lg" />
-          <div className="absolute -bottom-2 -left-2 w-4 h-4 border-l-2 border-b-2 border-purple-400/50 rounded-bl-lg" />
-          <div className="absolute -bottom-2 -right-2 w-4 h-4 border-r-2 border-b-2 border-cyan-400/50 rounded-br-lg" />
         </motion.div>
       </motion.div>
     )}
@@ -298,6 +254,15 @@ const formatFileSize = (bytes: number): string => {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
 }
+
+// Function to estimate training time
+const estimateTrainingTime = (bytes: number): string => {
+  const mb = bytes / (1024 * 1024);
+  if (mb < 100) return "30 - 60 Minutes";
+  if (mb < 500) return "1 - 3 Hours";
+  if (mb < 2048) return "4 - 8 Hours";
+  return "8 - 12+ Hours";
+};
 
 export default function Component() {
   const [description, setDescription] = useState("")
@@ -314,6 +279,7 @@ export default function Component() {
   }>({ type: null, message: "" })
   const [showProcessingModal, setShowProcessingModal] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+  const [estimatedTime, setEstimatedTime] = useState("");
 
   const maxLength = 500
   const maxFileSize = 2 * 1024 * 1024 * 1024 // 2GB
@@ -330,7 +296,7 @@ export default function Component() {
   }, [])
 
   useEffect(() => {
-    if (typeof window === "undefined") return
+    if (typeof window !== "undefined") return
 
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY })
@@ -351,6 +317,7 @@ export default function Component() {
       }
 
       setSelectedFile(file)
+      setEstimatedTime(estimateTrainingTime(file.size));
       setSubmitStatus({ type: null, message: "" })
     },
     [maxFileSize],
@@ -385,12 +352,10 @@ export default function Component() {
 
   const removeFile = () => {
     setSelectedFile(null)
-    setSubmitStatus({ type: null, message: "" })
   }
 
   // Form submission
   const handleSubmit = async () => {
-    // --- (Keep your existing validation checks for email/description here) ---
     if (!description.trim() || !email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
        setSubmitStatus({ type: "error", message: "Please fill out all fields correctly." });
        return;
@@ -402,10 +367,10 @@ export default function Component() {
 
     setIsSubmitting(true);
     setSubmitStatus({ type: null, message: "" });
+    setShowProcessingModal(true);
 
     try {
-      // STEP 1: Get the secure upload URL from our Next.js backend
-      setSubmitStatus({ type: "success", message: "🚀 Initializing secure upload..." });
+      // Step 1: Get the secure upload URL
       const getUrlResponse = await fetch("/api/forge-transformer", {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
@@ -414,27 +379,21 @@ export default function Component() {
           fileType: selectedFile.type,
         }),
       });
-
       const { success, signedUrl, gcsUri, jobId } = await getUrlResponse.json();
+      if (!success) throw new Error("Could not initialize upload session.");
+      
+      // Update the Job ID in the modal
+      setSubmitStatus({ type: "success", message: "", jobId });
 
-      if (!success || !signedUrl || !gcsUri) {
-        throw new Error("Could not initialize secure upload.");
-      }
-
-      // STEP 2: Upload the file DIRECTLY to Google Cloud Storage from the browser
-      setSubmitStatus({ type: "success", message: "⬆️ Uploading dataset directly to secure storage..." });
+      // Step 2: Upload the file directly to GCS
       const uploadResponse = await fetch(signedUrl, {
         method: 'PUT',
         body: selectedFile,
         headers: { 'Content-Type': selectedFile.type },
       });
-
-      if (!uploadResponse.ok) {
-        throw new Error("File upload failed. Please try again.");
-      }
+      if (!uploadResponse.ok) throw new Error("File upload failed.");
       
-      // STEP 3: Tell our backend to start the training job
-      setSubmitStatus({ type: "success", message: "✅ Finalizing... Starting transformer forge." });
+      // Step 3: Tell our backend to start the training job
       const startJobResponse = await fetch('https://manager-service-513450512212.us-central1.run.app/start-training-job', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -445,23 +404,12 @@ export default function Component() {
               gcsUri: gcsUri,
           }),
       });
-      
       const result = await startJobResponse.json();
-      
-      if (!startJobResponse.ok) {
-          throw new Error(result.error || "Failed to start the training job.");
-      }
+      if (!startJobResponse.ok) throw new Error(result.error || "Failed to start the training job.");
 
-      // Show the processing modal with the real Job ID from the backend
-      setSubmitStatus({
-        type: "success",
-        message: result.message,
-        jobId: result.jobId,
-      });
-      setShowProcessingModal(true);
-      
     } catch (error: any) {
       console.error("Submission error:", error);
+      setShowProcessingModal(false);
       setSubmitStatus({
         type: "error",
         message: error.message || "An unknown error occurred.",
@@ -479,7 +427,6 @@ export default function Component() {
     <div className="min-h-screen bg-black relative overflow-hidden">
       {/* Transformer Architecture Background */}
       <div className="absolute inset-0">
-        {/* Multi-Head Attention Visualization */}
         <svg className="absolute inset-0 w-full h-full opacity-15">
           <defs>
             <linearGradient id="attentionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -492,536 +439,139 @@ export default function Component() {
               <stop offset="100%" stopColor="rgba(139, 92, 246, 0.3)" />
             </linearGradient>
           </defs>
-
-          {/* Transformer Layers */}
-          {[...Array(6)].map((_, i) => (
-            <motion.rect
-              key={`layer-${i}`}
-              x="10%"
-              y={`${15 + i * 12}%`}
-              width="80%"
-              height="8%"
-              fill="none"
-              stroke="url(#layerGradient)"
-              strokeWidth="1"
-              rx="4"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 0.6 }}
-              transition={{
-                duration: 2,
-                delay: i * 0.3,
-                repeat: Number.POSITIVE_INFINITY,
-                repeatType: "reverse",
-                repeatDelay: 4,
-              }}
-            />
-          ))}
-
-          {/* Attention Connections */}
-          {[...Array(12)].map((_, i) => {
-            const startX = 20 + (i % 4) * 15
-            const startY = 20 + Math.floor(i / 4) * 20
-            const endX = 20 + ((i + 2) % 4) * 15
-            const endY = 40 + Math.floor(((i + 2) % 12) / 4) * 20
-
-            return (
-              <motion.path
-                key={`attention-${i}`}
-                d={`M ${startX}% ${startY}% Q ${(startX + endX) / 2}% ${(startY + endY) / 2 - 5}% ${endX}% ${endY}%`}
-                stroke="url(#attentionGradient)"
-                strokeWidth="1"
-                fill="none"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 0.8 }}
-                transition={{
-                  duration: 3,
-                  delay: i * 0.2,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                  repeatDelay: 2,
-                }}
-              />
-            )
-          })}
+          {[...Array(6)].map((_, i) => ( <motion.rect key={`layer-${i}`} x="10%" y={`${15 + i * 12}%`} width="80%" height="8%" fill="none" stroke="url(#layerGradient)" strokeWidth="1" rx="4" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.6 }} transition={{ duration: 2, delay: i * 0.3, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse", repeatDelay: 4, }} /> ))}
+          {[...Array(12)].map((_, i) => { const startX = 20 + (i % 4) * 15; const startY = 20 + Math.floor(i / 4) * 20; const endX = 20 + ((i + 2) % 4) * 15; const endY = 40 + Math.floor(((i + 2) % 12) / 4) * 20; return ( <motion.path key={`attention-${i}`} d={`M ${startX}% ${startY}% Q ${(startX + endX) / 2}% ${(startY + endY) / 2 - 5}% ${endX}% ${endY}%`} stroke="url(#attentionGradient)" strokeWidth="1" fill="none" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.8 }} transition={{ duration: 3, delay: i * 0.2, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse", repeatDelay: 2, }} /> ) })}
         </svg>
-
-        {/* Attention Heads */}
-        {[...Array(8)].map((_, i) => (
-          <AttentionHead
-            key={`head-${i}`}
-            delay={i * 0.5}
-            position={{
-              x: 15 + (i % 4) * 20,
-              y: 25 + Math.floor(i / 4) * 30,
-            }}
-          />
-        ))}
-
-        {/* Token Flow Animation */}
-        {[...Array(6)].map((_, i) => (
-          <TokenFlow key={`token-${i}`} startX={10} startY={20 + i * 10} endX={90} endY={20 + i * 10} delay={i * 0.8} />
-        ))}
-
-        {/* Training Loss Curve Visualization */}
+        {[...Array(8)].map((_, i) => ( <AttentionHead key={`head-${i}`} delay={i * 0.5} position={{ x: 15 + (i % 4) * 20, y: 25 + Math.floor(i / 4) * 30, }} /> ))}
+        {[...Array(6)].map((_, i) => ( <TokenFlow key={`token-${i}`} startX={10} startY={20 + i * 10} endX={90} endY={20 + i * 10} delay={i * 0.8} /> ))}
         <svg className="absolute bottom-0 right-0 w-1/3 h-1/3 opacity-20">
-          <motion.path
-            d="M 0 80 Q 20 60 40 45 Q 60 35 80 30 Q 100 28 120 27"
-            stroke="rgba(34, 197, 94, 0.8)"
-            strokeWidth="2"
-            fill="none"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{
-              duration: 4,
-              repeat: Number.POSITIVE_INFINITY,
-              repeatType: "reverse",
-              repeatDelay: 2,
-            }}
-          />
-          <text x="10" y="95" fill="rgba(34, 197, 94, 0.6)" fontSize="8">
-            Training Loss
-          </text>
+          <motion.path d="M 0 80 Q 20 60 40 45 Q 60 35 80 30 Q 100 28 120 27" stroke="rgba(34, 197, 94, 0.8)" strokeWidth="2" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse", repeatDelay: 2, }} />
+          <text x="10" y="95" fill="rgba(34, 197, 94, 0.6)" fontSize="8"> Training Loss </text>
         </svg>
-
-        {/* Embedding Space Visualization */}
         <div className="absolute top-1/4 left-1/4 w-1/2 h-1/2 opacity-10">
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={`embedding-${i}`}
-              className="absolute w-2 h-2 bg-blue-400/60 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                x: [0, Math.random() * 50 - 25],
-                y: [0, Math.random() * 50 - 25],
-                scale: [1, 1.2, 1],
-              }}
-              transition={{
-                duration: 6 + Math.random() * 4,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: Math.random() * 3,
-              }}
-            />
-          ))}
+          {[...Array(20)].map((_, i) => ( <motion.div key={`embedding-${i}`} className="absolute w-2 h-2 bg-blue-400/60 rounded-full" style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, }} animate={{ x: [0, Math.random() * 50 - 25], y: [0, Math.random() * 50 - 25], scale: [1, 1.2, 1], }} transition={{ duration: 6 + Math.random() * 4, repeat: Number.POSITIVE_INFINITY, delay: Math.random() * 3, }} /> ))}
         </div>
-
-        {/* Gradient Descent Visualization */}
-        <motion.div
-          className="absolute top-20 right-20 w-96 h-96 rounded-full blur-3xl"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, rgba(59, 130, 246, 0.2) 50%, transparent 100%)",
-          }}
-          animate={{
-            x: [0, -30, 0],
-            y: [0, 20, 0],
-            scale: [1, 0.8, 1],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-        />
-
-        {/* Data Processing Streams */}
-        {[...Array(15)].map((_, i) => (
-          <motion.div
-            key={`data-stream-${i}`}
-            className="absolute w-px bg-gradient-to-b from-transparent via-green-400/60 to-transparent"
-            style={{
-              left: `${i * 6.67}%`,
-              height: `${150 + Math.random() * 200}px`,
-            }}
-            animate={{
-              y: [-200, typeof window !== "undefined" ? window.innerHeight + 200 : 1000],
-              opacity: [0, 0.8, 0],
-            }}
-            transition={{
-              duration: 6 + Math.random() * 4,
-              repeat: Number.POSITIVE_INFINITY,
-              delay: Math.random() * 5,
-              ease: "linear",
-            }}
-          />
-        ))}
-
-        {/* Neural Network Nodes */}
-        {[...Array(25)].map((_, i) => (
-          <motion.div
-            key={`node-${i}`}
-            className="absolute w-1 h-1 bg-cyan-400/60 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              scale: [0.5, 1.5, 0.5],
-              opacity: [0.3, 1, 0.3],
-            }}
-            transition={{
-              duration: 4 + Math.random() * 3,
-              repeat: Number.POSITIVE_INFINITY,
-              delay: Math.random() * 3,
-            }}
-          />
-        ))}
-
-        {/* Positional Encoding Pattern */}
+        <motion.div className="absolute top-20 right-20 w-96 h-96 rounded-full blur-3xl" style={{ background: "radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, rgba(59, 130, 246, 0.2) 50%, transparent 100%)", }} animate={{ x: [0, -30, 0], y: [0, 20, 0], scale: [1, 0.8, 1], }} transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", }} />
+        {[...Array(15)].map((_, i) => ( <motion.div key={`data-stream-${i}`} className="absolute w-px bg-gradient-to-b from-transparent via-green-400/60 to-transparent" style={{ left: `${i * 6.67}%`, height: `${150 + Math.random() * 200}px`, }} animate={{ y: [-200, typeof window !== "undefined" ? window.innerHeight + 200 : 1000], opacity: [0, 0.8, 0], }} transition={{ duration: 6 + Math.random() * 4, repeat: Number.POSITIVE_INFINITY, delay: Math.random() * 5, ease: "linear", }} /> ))}
+        {[...Array(25)].map((_, i) => ( <motion.div key={`node-${i}`} className="absolute w-1 h-1 bg-cyan-400/60 rounded-full" style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, }} animate={{ scale: [0.5, 1.5, 0.5], opacity: [0.3, 1, 0.3], }} transition={{ duration: 4 + Math.random() * 3, repeat: Number.POSITIVE_INFINITY, delay: Math.random() * 3, }} /> ))}
         <div className="absolute inset-0 opacity-5">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <defs>
-              <pattern id="positional" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
-                <circle cx="4" cy="4" r="1" fill="currentColor" opacity="0.3" />
-                <path d="M0,4 L8,4 M4,0 L4,8" stroke="currentColor" strokeWidth="0.2" opacity="0.2" />
-              </pattern>
-            </defs>
+            <defs> <pattern id="positional" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse"> <circle cx="4" cy="4" r="1" fill="currentColor" opacity="0.3" /> <path d="M0,4 L8,4 M4,0 L4,8" stroke="currentColor" strokeWidth="0.2" opacity="0.2" /> </pattern> </defs>
             <rect width="100%" height="100%" fill="url(#positional)" />
           </svg>
         </div>
-
-        {/* Mouse-following Attention Mechanism */}
         <div className="absolute inset-0 opacity-20">
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-transparent to-purple-500/10"
-            style={{
-              background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(139, 92, 246, 0.15) 0%, transparent 50%)`,
-            }}
-          />
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-transparent to-purple-500/10" style={{ background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(139, 92, 246, 0.15) 0%, transparent 50%)`, }} />
         </div>
       </div>
 
-      {/* Navigation Bar */}
       <motion.nav
         className="relative z-20 flex justify-between items-center p-6 backdrop-blur-sm bg-black/20 border-b border-white/10"
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <motion.div
-          className="flex items-center space-x-4"
-          whileHover={{ scale: 1.05 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
+        <motion.div className="flex items-center space-x-4" whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }} >
           <div className="relative">
             <Brain className="w-12 h-12 text-cyan-400" />
             <div className="absolute inset-0 bg-cyan-400/20 rounded-full blur-xl" />
           </div>
-          <span className="text-white text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-            TransmorpIQ
-          </span>
+          <span className="text-white text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent"> TransmorpIQ </span>
         </motion.div>
-
         <div className="flex items-center space-x-8">
-          {[
-            { icon: <Info className="w-4 h-4" />, label: "About" },
-            { icon: <User className="w-4 h-4" />, label: "Profile" },
-          ].map((item, index) => (
-            <motion.button
-              key={item.label}
-              className="flex items-center space-x-2 text-gray-300 hover:text-cyan-400 transition-all duration-300 relative group"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-              <div className="absolute inset-0 bg-cyan-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
-            </motion.button>
-          ))}
+          {[ { icon: <Info className="w-4 h-4" />, label: "About" }, { icon: <User className="w-4 h-4" />, label: "Profile" }, ].map((item) => ( <motion.button key={item.label} className="flex items-center space-x-2 text-gray-300 hover:text-cyan-400 transition-all duration-300 relative group" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} > {item.icon} <span>{item.label}</span> <div className="absolute inset-0 bg-cyan-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity -z-10" /> </motion.button> ))}
         </div>
       </motion.nav>
 
       <div className="relative z-10">
-        {/* Hero Section */}
-        <motion.div
-          className="text-center py-16 px-6"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.3 }}
-        >
-          <motion.div
-            className="inline-flex items-center justify-center mb-8 relative"
-            animate={{ rotateY: [0, 5, 0, -5, 0] }}
-            transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY }}
-          >
+        <motion.div className="text-center py-16 px-6" initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.3 }} >
+          <motion.div className="inline-flex items-center justify-center mb-8 relative" animate={{ rotateY: [0, 5, 0, -5, 0] }} transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY }} >
             <div className="relative">
               <Brain className="w-16 h-16 text-cyan-400 mr-4" />
               <div className="absolute inset-0 bg-cyan-400/30 rounded-full blur-2xl animate-pulse" />
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-white via-cyan-200 to-purple-200 bg-clip-text text-transparent">
-              Forge a Mind from Scratch
-            </h1>
+            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-white via-cyan-200 to-purple-200 bg-clip-text text-transparent"> Forge a Mind from Scratch </h1>
           </motion.div>
-
-          <motion.p
-            className="text-xl text-gray-300 max-w-2xl mx-auto mb-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
-          >
-            Train custom transformer models from the ground up with your data. Build, optimize, and deploy
-            state-of-the-art AI architectures tailored to your specific needs.
+          <motion.p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8, duration: 0.8 }} >
+            Train custom transformer models from the ground up with your data. Build, optimize, and deploy state-of-the-art AI architectures tailored to your specific needs.
           </motion.p>
-
-          <motion.div
-            className="flex justify-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 0.8 }}
-          >
+          <motion.div className="flex justify-center" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 0.8 }} >
             <ChevronDown className="w-8 h-8 text-cyan-400 animate-bounce" />
           </motion.div>
         </motion.div>
 
-        {/* Features Grid */}
-        <motion.div
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 px-6 mb-16 max-w-6xl mx-auto"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2, duration: 0.8 }}
-        >
-          {features.map((feature, index) => (
-            <motion.div
-              key={feature.title}
-              className="bg-gray-900/40 backdrop-blur-sm border border-gray-800/50 rounded-xl p-6 text-center group hover:border-cyan-400/50 transition-all duration-300"
-              whileHover={{ scale: 1.05, y: -5 }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.4 + index * 0.1 }}
-            >
-              <div className="text-cyan-400 mb-3 flex justify-center group-hover:scale-110 transition-transform">
-                {feature.icon}
-              </div>
-              <h3 className="text-white font-semibold mb-2">{feature.title}</h3>
-              <p className="text-gray-400 text-sm">{feature.desc}</p>
-            </motion.div>
-          ))}
+        <motion.div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-6 mb-16 max-w-6xl mx-auto" initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2, duration: 0.8 }} >
+          {features.map((feature, index) => ( <motion.div key={feature.title} className="bg-gray-900/40 backdrop-blur-sm border border-gray-800/50 rounded-xl p-6 text-center group hover:border-cyan-400/50 transition-all duration-300" whileHover={{ scale: 1.05, y: -5 }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.4 + index * 0.1 }} > <div className="text-cyan-400 mb-3 flex justify-center group-hover:scale-110 transition-transform"> {feature.icon} </div> <h3 className="text-white font-semibold mb-2">{feature.title}</h3> <p className="text-gray-400 text-sm">{feature.desc}</p> </motion.div> ))}
         </motion.div>
 
-        {/* Enhanced Slideshow */}
-        <motion.div
-          className="mb-16"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1.6, duration: 0.8 }}
-        >
+        <motion.div className="mb-16" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.6, duration: 0.8 }} >
           <div className="relative h-[600px] mx-6 rounded-3xl overflow-hidden border border-gray-800/50 shadow-2xl">
             <AnimatePresence mode="wait">
-              <motion.div
-                key={currentSlide}
-                className="absolute inset-0"
-                initial={{ opacity: 0, scale: 1.1 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 1 }}
-              >
-                {/* Dynamic Background */}
+              <motion.div key={currentSlide} className="absolute inset-0" initial={{ opacity: 0, scale: 1.1 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 1 }} >
                 <div className={`absolute inset-0 bg-gradient-to-br ${slides[currentSlide].gradient}`} />
-
-                {/* Holographic Overlay */}
                 <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
-
-                {/* Content */}
                 <div className="relative z-10 h-full flex items-center justify-center p-12">
                   <div className="text-center max-w-4xl">
-                    {/* Icon with Holographic Effect */}
-                    <motion.div
-                      className="inline-flex p-8 rounded-full bg-black/30 backdrop-blur-sm mb-8 relative"
-                      whileHover={{ scale: 1.1, rotateY: 15 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    >
+                    <motion.div className="inline-flex p-8 rounded-full bg-black/30 backdrop-blur-sm mb-8 relative" whileHover={{ scale: 1.1, rotateY: 15 }} transition={{ type: "spring", stiffness: 300 }} >
                       <div className="text-white relative z-10">{slides[currentSlide].icon}</div>
                       <div className="absolute inset-0 bg-white/10 rounded-full blur-xl" />
                     </motion.div>
-
-                    {/* Title and Subtitle */}
-                    <motion.div
-                      initial={{ y: 30, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.3 }}
-                    >
+                    <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} >
                       <p className="text-cyan-300 text-lg mb-2 font-medium">{slides[currentSlide].subtitle}</p>
                       <h3 className="text-5xl md:text-6xl font-bold text-white mb-6">{slides[currentSlide].title}</h3>
-                      <p className="text-gray-200 text-xl leading-relaxed mb-8 max-w-3xl mx-auto">
-                        {slides[currentSlide].description}
-                      </p>
+                      <p className="text-gray-200 text-xl leading-relaxed mb-8 max-w-3xl mx-auto"> {slides[currentSlide].description} </p>
                     </motion.div>
-
-                    {/* Stats */}
-                    <motion.div
-                      className="flex justify-center space-x-8 md:space-x-12"
-                      initial={{ y: 30, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.6 }}
-                    >
-                      {Object.entries(slides[currentSlide].stats).map(([key, value]) => (
-                        <div key={key} className="text-center">
-                          <div className="text-2xl md:text-3xl font-bold text-cyan-300">{value}</div>
-                          <div className="text-gray-400 text-sm uppercase tracking-wider">{key}</div>
-                        </div>
-                      ))}
+                    <motion.div className="flex justify-center space-x-8 md:space-x-12" initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.6 }} >
+                      {Object.entries(slides[currentSlide].stats).map(([key, value]) => ( <div key={key} className="text-center"> <div className="text-2xl md:text-3xl font-bold text-cyan-300">{value}</div> <div className="text-gray-400 text-sm uppercase tracking-wider">{key}</div> </div> ))}
                     </motion.div>
                   </div>
                 </div>
-
-                {/* Decorative Elements */}
                 <div className="absolute top-10 left-10 w-24 h-24 border border-white/20 rounded-full" />
                 <div className="absolute bottom-10 right-10 w-16 h-16 border border-white/20 rounded-full" />
                 <div className="absolute top-1/3 right-20 w-2 h-2 bg-cyan-400/60 rounded-full animate-pulse" />
                 <div className="absolute bottom-1/3 left-20 w-1 h-1 bg-purple-400/60 rounded-full animate-pulse" />
               </motion.div>
             </AnimatePresence>
-
-            {/* Enhanced Slide Indicators */}
             <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-4">
-              {slides.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`relative w-12 h-1 rounded-full transition-all duration-300 ${
-                    index === currentSlide ? "bg-cyan-400" : "bg-white/30 hover:bg-white/50"
-                  }`}
-                >
-                  {index === currentSlide && (
-                    <motion.div className="absolute inset-0 bg-cyan-400 rounded-full" layoutId="activeSlide" />
-                  )}
-                </button>
-              ))}
+              {slides.map((_, index) => ( <button key={index} onClick={() => setCurrentSlide(index)} className={`relative w-12 h-1 rounded-full transition-all duration-300 ${ index === currentSlide ? "bg-cyan-400" : "bg-white/30 hover:bg-white/50" }`} > {index === currentSlide && ( <motion.div className="absolute inset-0 bg-cyan-400 rounded-full" layoutId="activeSlide" /> )} </button> ))}
             </div>
           </div>
         </motion.div>
 
         <div className="max-w-6xl mx-auto px-6">
-          {/* Enhanced File Upload */}
-          <motion.div
-            className="mb-12"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2, duration: 0.8 }}
-          >
+          <motion.div className="mb-12" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2, duration: 0.8 }} >
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div
-                className={`relative border-2 border-dashed rounded-2xl p-16 text-center bg-gray-900/40 backdrop-blur-sm transition-all duration-500 cursor-pointer ${
-                  isDragOver
-                    ? "border-cyan-400/80 bg-gray-900/60"
-                    : "border-gray-700/60 hover:border-cyan-400/60 hover:bg-gray-900/60"
-                }`}
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onClick={() => document.getElementById("file-input")?.click()}
-              >
-                <input id="file-input" type="file" onChange={handleFileChange} className="hidden" accept="*/*" />
-
+              <div className={`relative border-2 border-dashed rounded-2xl p-16 text-center bg-gray-900/40 backdrop-blur-sm transition-all duration-500 cursor-pointer ${ isDragOver ? "border-cyan-400/80 bg-gray-900/60" : "border-gray-700/60 hover:border-cyan-400/60 hover:bg-gray-900/60" }`} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onClick={() => document.getElementById("file-input")?.click()} >
+                <input id="file-input" type="file" onChange={handleFileChange} className="hidden" accept=".pdf" />
                 <motion.div whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
-                  {selectedFile ? (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-center space-x-4">
-                        <FileText className="w-12 h-12 text-green-400" />
-                        <div className="text-left">
-                          <div className="text-white text-lg font-semibold">{selectedFile.name}</div>
-                          <div className="text-gray-400">{formatFileSize(selectedFile.size)}</div>
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            removeFile()
-                          }}
-                          className="text-red-400 hover:text-red-300 transition-colors"
-                        >
-                          <X className="w-6 h-6" />
-                        </button>
-                      </div>
-                      <div className="text-green-400 text-sm">File ready for upload</div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="relative inline-block mb-6">
-                        <Upload className="w-16 h-16 text-gray-400 group-hover:text-cyan-400 transition-colors duration-300" />
-                        <div className="absolute inset-0 bg-cyan-400/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                      <div className="text-white text-2xl font-semibold mb-3">Drop your training dataset here</div>
-                      <div className="text-gray-400 text-lg mb-6">or click to browse files</div>
-                      <div className="text-gray-500">All file types supported • Max size 2GB</div>
-                    </>
-                  )}
+                  {selectedFile ? ( <div className="space-y-4"> <div className="flex items-center justify-center space-x-4"> <FileText className="w-12 h-12 text-green-400" /> <div className="text-left"> <div className="text-white text-lg font-semibold">{selectedFile.name}</div> <div className="text-gray-400">{formatFileSize(selectedFile.size)}</div> </div> <button onClick={(e) => { e.stopPropagation(); removeFile(); }} className="text-red-400 hover:text-red-300 transition-colors" > <X className="w-6 h-6" /> </button> </div> <div className="text-green-400 text-sm">File ready for upload</div> </div> ) : ( <> <div className="relative inline-block mb-6"> <Upload className="w-16 h-16 text-gray-400 group-hover:text-cyan-400 transition-colors duration-300" /> <div className="absolute inset-0 bg-cyan-400/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity" /> </div> <div className="text-white text-2xl font-semibold mb-3">Drop your training dataset here</div> <div className="text-gray-400 text-lg mb-6">or click to browse files</div> <div className="text-gray-500">PDF documents only • Max size 2GB</div> </> )}
                 </motion.div>
               </div>
             </div>
           </motion.div>
 
-          {/* Enhanced Vision Section */}
-          <motion.div
-            className="mb-8"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2.2, duration: 0.8 }}
-          >
-            <h2 className="text-white text-3xl font-bold mb-8 text-center bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              Describe Your Transformer Architecture
-            </h2>
+          <motion.div className="mb-8" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.2, duration: 0.8 }} >
+            <h2 className="text-white text-3xl font-bold mb-8 text-center bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent"> Describe Your Transformer's Purpose </h2>
             <div className="relative">
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value.slice(0, maxLength))}
-                placeholder="e.g. Build a language model for legal document analysis with 12 transformer layers, 768 hidden dimensions, and multi-head attention for processing complex legal terminology and context..."
-                className="bg-gray-900/60 backdrop-blur-sm border-gray-700/60 text-white placeholder-gray-400 min-h-[160px] resize-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20 rounded-2xl text-lg p-8 transition-all duration-300"
-                maxLength={maxLength}
-                disabled={isSubmitting}
-              />
-              <div className="absolute bottom-6 right-6 text-gray-500 font-mono bg-black/50 px-3 py-1 rounded-lg">
-                {description.length}/{maxLength}
-              </div>
+              <Textarea value={description} onChange={(e) => setDescription(e.target.value.slice(0, maxLength))} placeholder="e.g. Build a language model for legal document analysis with 12 transformer layers, 768 hidden dimensions, and multi-head attention for processing complex legal terminology and context..." className="bg-gray-900/60 backdrop-blur-sm border-gray-700/60 text-white placeholder-gray-400 min-h-[160px] resize-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20 rounded-2xl text-lg p-8 transition-all duration-300" maxLength={maxLength} disabled={isSubmitting} />
+              <div className="absolute bottom-6 right-6 text-gray-500 font-mono bg-black/50 px-3 py-1 rounded-lg"> {description.length}/{maxLength} </div>
             </div>
           </motion.div>
 
-          {/* Email Field */}
-          <motion.div
-            className="mb-12"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2.3, duration: 0.8 }}
-          >
+          <motion.div className="mb-12" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.3, duration: 0.8 }} >
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                <Mail className="w-5 h-5 text-gray-400" />
-              </div>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your.email@example.com"
-                className="w-full bg-gray-900/60 backdrop-blur-sm border border-gray-700/60 text-white placeholder-gray-400 rounded-2xl text-lg pl-14 pr-8 py-4 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-300"
-                disabled={isSubmitting}
-              />
-              <div className="absolute inset-y-0 right-0 pr-6 flex items-center">
-                <span className="text-gray-500 text-sm">We'll send updates here</span>
-              </div>
+              <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none"> <Mail className="w-5 h-5 text-gray-400" /> </div>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your.email@example.com" className="w-full bg-gray-900/60 backdrop-blur-sm border border-gray-700/60 text-white placeholder-gray-400 rounded-2xl text-lg pl-14 pr-8 py-4 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-300" disabled={isSubmitting} />
+              <div className="absolute inset-y-0 right-0 pr-6 flex items-center"> <span className="text-gray-500 text-sm">We'll send updates here</span> </div>
             </div>
           </motion.div>
 
-          {/* Status Messages */}
           <AnimatePresence>
-            {submitStatus.type && (
-              <motion.div
-                className={`mb-8 p-6 rounded-2xl backdrop-blur-sm border ${
-                  submitStatus.type === "success"
-                    ? "bg-green-900/40 border-green-500/50 text-green-200"
-                    : "bg-red-900/40 border-red-500/50 text-red-200"
-                }`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
+            {submitStatus.type && !showProcessingModal && (
+              <motion.div className={`mb-8 p-6 rounded-2xl backdrop-blur-sm border ${ submitStatus.type === "success" ? "bg-green-900/40 border-green-500/50 text-green-200" : "bg-red-900/40 border-red-500/50 text-red-200" }`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} >
                 <div className="flex items-center space-x-3">
-                  {submitStatus.type === "success" ? (
-                    <CheckCircle className="w-6 h-6 text-green-400" />
-                  ) : (
-                    <AlertCircle className="w-6 h-6 text-red-400" />
-                  )}
+                  {submitStatus.type === "success" ? ( <CheckCircle className="w-6 h-6 text-green-400" /> ) : ( <AlertCircle className="w-6 h-6 text-red-400" /> )}
                   <div>
                     <div className="font-semibold">{submitStatus.message}</div>
                     {submitStatus.jobId && <div className="text-sm opacity-80 mt-1">Job ID: {submitStatus.jobId}</div>}
@@ -1031,34 +581,12 @@ export default function Component() {
             )}
           </AnimatePresence>
 
-          {/* Enhanced Forge Button */}
-          <motion.div
-            className="text-center pb-16"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2.4, duration: 0.8 }}
-          >
+          <motion.div className="text-center pb-16" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.4, duration: 0.8 }} >
             <motion.div whileHover={{ scale: isSubmitting ? 1 : 1.05 }} whileTap={{ scale: isSubmitting ? 1 : 0.95 }}>
-              <Button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="relative bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 hover:from-cyan-400 hover:via-purple-400 hover:to-pink-400 text-white px-16 py-6 rounded-2xl font-bold text-2xl shadow-2xl border-0 overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
-                size="lg"
-              >
+              <Button onClick={handleSubmit} disabled={isSubmitting} className="relative bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 hover:from-cyan-400 hover:via-purple-400 hover:to-pink-400 text-white px-16 py-6 rounded-2xl font-bold text-2xl shadow-2xl border-0 overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed" size="lg" >
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-purple-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative flex items-center">
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-8 h-8 mr-4 animate-spin" />
-                      Forging...
-                    </>
-                  ) : (
-                    <>
-                      <Brain className="w-8 h-8 mr-4" />
-                      Forge Transformer
-                      <Sparkles className="w-6 h-6 ml-4" />
-                    </>
-                  )}
+                  {isSubmitting ? ( <> <Loader2 className="w-8 h-8 mr-4 animate-spin" /> Forging... </> ) : ( <> <Brain className="w-8 h-8 mr-4" /> FORGE <Sparkles className="w-6 h-6 ml-4" /> </> )}
                 </div>
               </Button>
             </motion.div>
@@ -1066,12 +594,11 @@ export default function Component() {
         </div>
       </div>
 
-      {/* Processing Modal */}
       <ProcessingModal
         isOpen={showProcessingModal}
         onClose={() => setShowProcessingModal(false)}
-        message={submitStatus.message}
         jobId={submitStatus.jobId}
+        estimatedTime={estimatedTime}
       />
     </div>
   )
